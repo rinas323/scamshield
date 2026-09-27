@@ -7,15 +7,14 @@ import {
 import { SearchForm } from '@/components/search-form'
 import { ListingGrid } from '@/components/listing-grid'
 import { Pagination } from '@/components/pagination'
-import { LoadMoreButton } from '@/components/load-more-button'
 import { Badge } from '@/components/ui/badge'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Home',
+  title: 'All reports',
 }
 
-export default async function HomePage({
+export default async function ListingsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -56,13 +55,12 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-100">
-          Track job & internship scams in India
+      <section>
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
+          All reports
         </h1>
-        <p className="mt-3 text-slate-600 dark:text-slate-400">
-          Report, review and upvote suspicious job & internship listings before
-          they hurt others.
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
+          <span className="font-semibold">{results.total}</span> approved reports
         </p>
       </section>
 
@@ -79,9 +77,6 @@ export default async function HomePage({
 
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            <span className="font-semibold">{results.total}</span> approved reports
-          </p>
           <Badge variant="secondary">{results.pageCount} page(s)</Badge>
         </div>
         <ListingGrid
@@ -98,19 +93,6 @@ export default async function HomePage({
             categoryId: categoryId ?? '',
           }}
         />
-        {/* Load More button for cursor-based infinite scroll */}
-        {results.hasMore && (
-          <LoadMoreButton
-            initialCursor={results.nextCursor ?? null}
-            params={{
-              q: q ?? '',
-              scamType: scamType ?? '',
-              state: state ?? '',
-              categoryId: categoryId ?? '',
-              sort,
-            }}
-          />
-        )}
       </section>
     </div>
   )

@@ -1,0 +1,177 @@
+// Prisma schema for ScamShield — a job/internship scam reporting platform for India.
+// MongoDB Atlas (or local MongoDB) is the single data store; Prisma is the
+// connection layer for the entire app (auth users + domain data).
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Auth ----
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String?
+  email                 String?  @unique
+  emailVerified         DateTime?
+  image                 String?
+  role                  Role     @default(USER)
+  password              String?  // bcrypt hash (custom email+password auth)
+  bio                   String?
+  // Email notification preferences (admin-configurable)
+  emailNotifications    Boolean  @default(false)
+  notificationEmail     String?  // override email for notifications (default: account email)
+  // Email verification (OTP-based)
+  emailOtp              String?
+  emailOtpExpires       DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  submissions           ScamListing[] @relation("Submitter")
+  approvals             ScamListing[] @relation("Approver")
+  reviews               Review[]
+  votes                 Vote[]
+}
+
+// ---- Domain ----
+enum ListingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  VERIFIED
+  DISPUTED
+}
+
+enum ScamType {
+  FAKE_JOB_POSTING
+  IMPERSONATION
+  PAYMENT_FRAUD
+  DOCUMENT_FRAUD
+  FAKE_OFFER_LETTER
+  ADVERTISING_SCAM
+  OTHER
+}
+
+enum TargetType {
+  LISTING
+  REVIEW
+}
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  slug        String   @unique
+  icon        String? // emoji / icon name
+  description String?
+  createdAt   DateTime @default(now())
+
+  listings    ScamListing[]
+}
+
+model ScamListing {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug             String   @unique
+  title            String
+  company          String?
+  location         String? // city
+  state            String?
+  country          String? @default("India")
+  jobTitle         String?
+  description      String
+  scamType         ScamType
+  evidence         String[]
+  screenshotUrls   String[]
+
+  adminDescription String?
+  status           ListingStatus @default(PENDING)
+  verification     VerificationStatus @default(UNVERIFIED)
+
+  upvotesCount     Int      @default(0)
+  reviewsCount     Int      @default(0)
+  viewCount        Int      @default(0)
+  isFromApi        Boolean  @default(false)
+  externalSource   String?
+
+  submittedById    String   @db.ObjectId
+  submittedBy      User     @relation("Submitter", fields: [submittedById], references: [id])
+  approvedById     String?  @db.ObjectId
+  approvedBy       User?    @relation("Approver", fields: [approvedById], references: [id])
+  approvedAt       DateTime?
+  categoryId       String?  @db.ObjectId
+  category         Category? @relation(fields: [categoryId], references: [id])
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  reviews          Review[]
+
+  @@index([status])
+  @@index([isFromApi])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Review {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  listingId     String   @db.ObjectId
+  listing       ScamListing @relation(fields: [listingId], references: [id])
+  authorId      String   @db.ObjectId
+  author        User     @relation(fields: [authorId], references: [id])
+  body          String
+  upvotesCount  Int      @default(0)
+  downvotesCount Int     @default(0)
+  // Replies - self-referencing relation
+  parentId      String?  @db.ObjectId
+  parent        Review?  @relation("ReviewReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies       Review[] @relation("ReviewReplies")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([listingId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+// Generic vote: one upvote per user per target (listing or review).
+model Vote {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String    @db.ObjectId
+  user       User      @relation(fields: [userId], references: [id])
+  targetType TargetType
+  targetId   String    @db.ObjectId
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, targetType, targetId], name: "vote_unique")
+  @@index([targetType, targetId])
+}
+
+// Admin notifications for new report submissions and review activity.
+// Created when a user submits a new report; admins can view & dismiss them.
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  type        NotificationType @default(NEW_REPORT)
+  listingId   String?  @db.ObjectId
+  title       String
+  body        String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([read, createdAt(sort: Desc)])
+  @@index([listingId])
+}
+
+enum NotificationType {
+  NEW_REPORT
+  REPORT_FLAGGED
+  BULK_REVIEW
+}

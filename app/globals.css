@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Use class-based dark mode: the `dark` class on <html> toggles all
+   `dark:` utilities. Without this Tailwind v4 defaults to the
+   `@media (prefers-color-scheme: dark)` strategy, so the ThemeToggle
+   button — which flips the class — would have no effect. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -13,7 +19,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
