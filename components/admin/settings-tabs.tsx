@@ -49,12 +49,12 @@ export function SettingsTabs({
   )
 }
 
-function TabButton({ id, label, activeTab, onTabChange }: { id: 'notifications' | 'users'; label: string; activeTab: string; onTabChange: (tab: string) => void }) {
+function TabButton({ id, label, activeTab, onTabChange }: { id: 'notifications' | 'users'; label: string; activeTab: 'notifications' | 'users'; onTabChange: (tab: 'notifications' | 'users') => void }) {
   const isActive = activeTab === id
   return (
     <button
       type="button"
-      onClick={() => onTabChange(id as 'notifications' | 'users')}
+      onClick={() => onTabChange(id)}
       id={`tab-${id}`}
       className={`flex-1 py-3 px-4 border-b-2 text-sm font-medium transition-colors ${
         isActive
@@ -71,7 +71,7 @@ function TabButton({ id, label, activeTab, onTabChange }: { id: 'notifications' 
 function NotificationSettings({ user }: { 
   user: { emailNotifications: boolean; notificationEmail: string | null; email: string | null }
 }) {
-  const [state, action, pending] = useActionState(updateEmailNotifications, undefined)
+  const [state, action, pending] = useActionState(updateEmailNotifications, { ok: false })
 
   return (
     <Card>

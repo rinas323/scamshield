@@ -1,15 +1,13 @@
 'use client'
 
-import { useState } from 'react'
-import { useActionState } from 'react'
+import { useState, useEffect } from 'react'
 import { promoteToAdmin, demoteFromAdmin, createAdminUser } from '@/actions/admin-users'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
-import type { UserRow } from '@/lib/dal'
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 interface AdminUser {
   id: string
@@ -46,15 +44,14 @@ export function UserManagementClient({
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [searchDebounce, setSearchDebounce] = useState('')
 
   // Debounce search
-  useState(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery)
     }, 300)
     return () => clearTimeout(timer)
-  })
+  }, [searchQuery])
 
   // Fetch users when debounced query or cursor changes
   const fetchUsers = async (newCursor?: string | null, isNewSearch = false) => {
@@ -93,7 +90,6 @@ export function UserManagementClient({
   // Handle search
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setSearchQuery(value)
     setSearchQuery(value)
   }
 
@@ -140,7 +136,6 @@ export function UserManagementClient({
                 value={searchQuery}
                 onChange={handleSearch}
                 className="flex-1"
-                placeholder="Search users..."
               />
               <Button type="submit" variant="outline" size="sm" disabled={loading}>
                 <MagnifyingGlassIcon className="h-4 w-4" />

@@ -23,7 +23,7 @@ export default async function RootLayout({
 }) {
   const themeClass = await getThemeClass()
   return (
-    <html lang="en" className={themeClass} suppressHydrationWarning>
+    <html lang="en" className={`${themeClass} preload`} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-white text-slate-900 anti-aliased dark:bg-slate-950 dark:text-slate-100 flex flex-col`}
       >

@@ -21,19 +21,19 @@ export function SearchForm({
   categories,
 }: SearchFormProps) {
   return (
-    <form action="/" method="get" className="grid grid-cols-1 gap-3 sm:grid-cols-6">
-      <div className="sm:col-span-2">
+    <form action="/" method="get" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="sm:col-span-2 lg:col-span-2">
         <label className="sr-only">Search</label>
         <Input name="q" type="search" placeholder="Search company or job…" defaultValue={q} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
           Scam type
         </label>
         <select
           name="scamType"
           defaultValue={scamType || '_all'}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors duration-150"
         >
           <option value="_all">All types</option>
           {SCAM_TYPES.map((t) => (
@@ -44,13 +44,13 @@ export function SearchForm({
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
           State
         </label>
         <select
           name="state"
           defaultValue={state || '_all'}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors duration-150"
         >
           <option value="_all">All states</option>
           {INDIAN_STATES.map((s) => (
@@ -61,13 +61,13 @@ export function SearchForm({
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
           Category
         </label>
         <select
           name="categoryId"
           defaultValue={categoryId || '_all'}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors duration-150"
         >
           <option value="_all">All categories</option>
           {categories.map((c) => (
@@ -78,24 +78,24 @@ export function SearchForm({
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">
+        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
           Sort
         </label>
         <select
           name="sort"
           defaultValue={sort || 'newest'}
-          className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors duration-150"
         >
           <option value="newest">Newest first</option>
           <option value="top">Most upvoted</option>
           <option value="oldest">Oldest first</option>
         </select>
       </div>
-      <div className="sm:col-span-6 flex items-end gap-3">
-        <Button type="submit" size="md">
+      <div className="sm:col-span-2 lg:col-span-6 flex items-end gap-3">
+        <Button type="submit" size="md" className="w-full sm:w-auto">
           Search
         </Button>
-        <Link href="/" className="text-sm font-medium text-slate-600 hover:text-indigo-700 dark:text-slate-400 dark:hover:text-indigo-400">
+        <Link href="/" className="text-sm font-medium text-slate-600 hover:text-indigo-700 dark:text-slate-400 dark:hover:text-indigo-400 whitespace-nowrap self-center">
           Clear filters
         </Link>
       </div>

@@ -1,21 +1,30 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useLayoutEffect, useRef } from 'react'
 import { setTheme } from '@/actions/theme'
 
 export function ThemeToggle({ initialTheme }: { initialTheme: 'dark' | 'light' }) {
-  // `initialTheme` is resolved on the server from the theme cookie, so the very
-  // first client render matches the server HTML (no hydration mismatch). We never
-  // read `window`/`document.cookie` during render to keep that invariant.
   const [theme, setThemeState] = useState<'dark' | 'light'>(initialTheme)
   const [pending, setPending] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const mountedRef = useRef(false)
 
-  // The <html>.dark class must follow the *chosen* theme (state), not the cookie:
-  // the cookie is written asynchronously by `setTheme` below, so reading it here
-  // would lag one render behind the user's click. `theme` state updates
-  // synchronously, so the class stays in step with the icon.
-  useEffect(() => {
+  // Apply theme to document - use useLayoutEffect to avoid flash
+  useLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
+
+  // Mark as mounted after first render - use a ref to avoid double render
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      setMounted(true)
+    }
+  }, [])
+
+  // Remove preload class after mount to enable transitions
+  useEffect(() => {
+    document.documentElement.classList.remove('preload')
+  }, [])
 
   const toggle = async () => {
     const next: 'dark' | 'light' = theme === 'dark' ? 'light' : 'dark'
@@ -28,7 +37,18 @@ export function ThemeToggle({ initialTheme }: { initialTheme: 'dark' | 'light' }
     }
   }
 
-  const Icon = theme === 'dark' ? SunIcon : MoonIcon
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        aria-label="Toggle dark mode"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+        disabled
+      >
+        <MoonIcon className="h-5 w-5" />
+      </button>
+    )
+  }
 
   return (
     <button
@@ -36,9 +56,20 @@ export function ThemeToggle({ initialTheme }: { initialTheme: 'dark' | 'light' }
       onClick={toggle}
       disabled={pending}
       aria-label="Toggle dark mode"
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-indigo-500"
+      className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-indigo-500 transition-colors duration-200"
     >
-      <Icon className="h-5 w-5" />
+      <span className="absolute transition-all duration-300 ease-in-out" style={{
+        opacity: theme === 'dark' ? 0 : 1,
+        transform: theme === 'dark' ? 'rotate(-90deg) scale(0.5)' : 'rotate(0deg) scale(1)'
+      }}>
+        <MoonIcon className="h-5 w-5" />
+      </span>
+      <span className="absolute transition-all duration-300 ease-in-out" style={{
+        opacity: theme === 'dark' ? 1 : 0,
+        transform: theme === 'dark' ? 'rotate(0deg) scale(1)' : 'rotate(90deg) scale(0.5)'
+      }}>
+        <SunIcon className="h-5 w-5" />
+      </span>
     </button>
   )
 }

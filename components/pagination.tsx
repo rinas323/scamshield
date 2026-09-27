@@ -25,13 +25,13 @@ export function Pagination({ page, pageCount, query }: PaginationProps) {
   return (
     <nav
       aria-label="Pagination"
-      className="my-8 flex items-center justify-center gap-1"
+      className="my-8 flex flex-wrap items-center justify-center gap-1"
     >
       <Link
         href={buildHref(Math.max(1, page - 1))}
         aria-label="Previous page"
         className={cn(
-          'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
+          'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950',
           page <= 1 && 'pointer-events-none opacity-50'
         )}
       >
@@ -42,7 +42,8 @@ export function Pagination({ page, pageCount, query }: PaginationProps) {
         p === 'ellipsis' ? (
           <span
             key="ellipsis"
-            className="px-2 text-sm text-slate-500 dark:text-slate-400"
+            className="flex h-9 items-center px-2 text-sm text-slate-500 dark:text-slate-400"
+            aria-hidden="true"
           >
             …
           </span>
@@ -51,8 +52,9 @@ export function Pagination({ page, pageCount, query }: PaginationProps) {
             key={p}
             href={buildHref(p)}
             aria-current={p === page ? 'page' : undefined}
+            aria-label={`Page ${p}`}
             className={cn(
-              'inline-flex h-9 min-w-[36px] items-center justify-center rounded-lg border text-sm font-medium',
+              'inline-flex h-9 min-w-[36px] items-center justify-center rounded-lg border text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950',
               p === page
                 ? 'border-indigo-600 bg-indigo-600 text-white'
                 : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -67,7 +69,7 @@ export function Pagination({ page, pageCount, query }: PaginationProps) {
         href={buildHref(Math.min(pageCount, page + 1))}
         aria-label="Next page"
         className={cn(
-          'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
+          'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950',
           page >= pageCount && 'pointer-events-none opacity-50'
         )}
       >

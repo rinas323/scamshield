@@ -280,6 +280,7 @@ export interface ReviewDTO {
   currentViewerUpvoted: boolean
   currentViewerDownvoted: boolean
   listingSlug: string
+  repliesCount: number
   replies?: ReviewDTO[]
 }
 
@@ -297,28 +298,29 @@ export async function getReviews(
     take,
     skip,
     cursor: cursor ? { id: cursor } : undefined,
-    select: {
-      id: true,
-      body: true,
-      upvotesCount: true,
-      downvotesCount: true,
-      createdAt: true,
-      listingId: true,
-      author: { select: { id: true, name: true, image: true, role: true } },
-      replies: {
-        take: 3,
-        orderBy: { createdAt: 'asc' },
-        select: {
-          id: true,
-          body: true,
-          upvotesCount: true,
-          downvotesCount: true,
-          createdAt: true,
-          author: { select: { id: true, name: true, image: true, role: true } },
+select: {
+        id: true,
+        body: true,
+        upvotesCount: true,
+        downvotesCount: true,
+        createdAt: true,
+        listingId: true,
+        author: { select: { id: true, name: true, image: true, role: true } },
+        _count: { select: { replies: true } },
+        replies: {
+          take: 3,
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            body: true,
+            upvotesCount: true,
+            downvotesCount: true,
+            createdAt: true,
+            author: { select: { id: true, name: true, image: true, role: true } },
+          },
         },
+        listing: { select: { slug: true } },
       },
-      listing: { select: { slug: true } },
-    },
   })
 
   const viewerVotes = viewerId
@@ -351,6 +353,7 @@ export async function getReviews(
     currentViewerUpvoted: upvoted.has(r.id),
     currentViewerDownvoted: downvoted.has(r.id),
     listingSlug,
+    repliesCount: r._count?.replies ?? 0,
     replies: r.replies?.map((reply) => ({
       id: reply.id,
       body: reply.body,
@@ -361,6 +364,7 @@ export async function getReviews(
       currentViewerUpvoted: upvoted.has(reply.id),
       currentViewerDownvoted: downvoted.has(reply.id),
       listingSlug,
+      repliesCount: 0,
     })),
   }))
 

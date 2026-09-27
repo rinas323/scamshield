@@ -5,6 +5,7 @@ import { VoteButton } from '@/components/vote-button'
 import { formatDate } from '@/lib/utils'
 import type { ListingCard } from '@/lib/dal'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 export interface ListingCardProps {
   listing: ListingCard
@@ -23,22 +24,40 @@ export function ListingCard({ listing, viewerUpvoted }: ListingCardProps) {
     router.push(`/listings/${listing.slug}#reviews`)
   }
 
+  const handleCardClick = () => {
+    router.push(`/listings/${listing.slug}`)
+  }
+
   return (
     <article
-      className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-md cursor-pointer dark:border-slate-800 dark:bg-slate-950"
-      onClick={() => router.push(`/listings/${listing.slug}`)}
+      className={cn(
+        'flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-5 transition-all duration-200 cursor-pointer',
+        'hover:shadow-lg hover:border-slate-300 hover:-translate-y-0.5',
+        'dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950'
+      )}
+      onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          handleCardClick()
+        }
+      }}
+      tabIndex={0}
+      role="article"
+      aria-label={`View details for ${listing.title}`}
     >
-      <div className="flex flex-wrap items-start gap-2">
+      <div className="flex flex-wrap items-start gap-1.5">
         {listing.category ? (
-          <Badge variant="outline">{listing.category.name}</Badge>
+          <Badge variant="outline" className="text-xs">{listing.category.name}</Badge>
         ) : (
-          <Badge variant="outline">Uncategorized</Badge>
+          <Badge variant="outline" className="text-xs">Uncategorized</Badge>
         )}
         <ScamTypeBadge scamType={listing.scamType} />
         <VerificationBadge status={listing.verification} />
       </div>
 
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 line-clamp-2">
         {listing.title}
       </h3>
 
@@ -59,17 +78,20 @@ export function ListingCard({ listing, viewerUpvoted }: ListingCardProps) {
         {truncated}
       </p>
 
-      <div className="mt-3 flex items-center justify-between gap-3">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-          <a
-            href="#"
+          <button
             onClick={handleReviewsClick}
-            className="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            className="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 rounded"
             title="View reviews"
+            aria-label={`View ${listing.reviewsCount} review${listing.reviewsCount !== 1 ? 's' : ''}`}
           >
-            <ChatIcon className="h-4 w-4" /> {listing.reviewsCount}
-          </a>
-          <span className="text-xs">{formatDate(listing.createdAt)}</span>
+            <ChatIcon className="h-4 w-4" />
+            <span className="font-medium">{listing.reviewsCount}</span>
+          </button>
+          <time dateTime={listing.createdAt.toISOString()} className="text-xs whitespace-nowrap">
+            {formatDate(listing.createdAt)}
+          </time>
         </div>
         <VoteButton
           targetType="LISTING"
